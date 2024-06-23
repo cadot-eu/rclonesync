@@ -1,5 +1,10 @@
 # Rclone Sync and Log Script
 
+## In work
+
+- add auto start
+- add gdrive to disk modification
+
 ## Description
 
 This script is designed to synchronize a local directory with a remote directory using `rclone`, while logging the process and generating an HTML file to display the logs. The script also monitors the local directory for changes and triggers synchronization whenever a change is detected.

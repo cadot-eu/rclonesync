@@ -16,3 +16,24 @@ Changement détecté, démarrage de la synchronisation...
 Fichier HTML des logs mis à jour : ./rclone_logs.html
 Setting up watches.  Beware: since -r was given, this may take a while!
 Watches established.
+/home/michael/cloud/ CREATE test
+2024-06-23 19:35:30 - Démarrage de la synchronisation avec rclone...
+2024-06-23 19:35:44 - Synchronisation avec rclone terminée.
+Fichier HTML des logs mis à jour : ./rclone_logs.html
+Surveillance des modifications dans le répertoire /home/michael/cloud...
+Setting up watches.  Beware: since -r was given, this may take a while!
+Watches established.
+/home/michael/cloud/toto/ DELETE roro
+Changement détecté, démarrage de la synchronisation...
+2024-06-23 19:36:06 - Démarrage de la synchronisation avec rclone...
+2024-06-23 19:36:11 - Synchronisation avec rclone terminée.
+Fichier HTML des logs mis à jour : ./rclone_logs.html
+Setting up watches.  Beware: since -r was given, this may take a while!
+Watches established.
+/home/michael/cloud/ DELETE test
+Changement détecté, démarrage de la synchronisation...
+2024-06-23 19:36:19 - Démarrage de la synchronisation avec rclone...
+2024-06-23 19:36:23 - Synchronisation avec rclone terminée.
+Fichier HTML des logs mis à jour : ./rclone_logs.html
+Setting up watches.  Beware: since -r was given, this may take a while!
+Watches established.
