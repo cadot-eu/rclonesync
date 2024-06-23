@@ -1,0 +1,9 @@
+2024/06/23 18:53:28 INFO  : test/pp/tt: Deleted
+2024/06/23 18:53:28 INFO  : test/pp: Removing directory
+2024/06/23 18:53:29 INFO  : There was nothing to transfer
+2024/06/23 18:53:29 INFO  : 
+Transferred:   	          0 B / 0 B, -, 0 B/s, ETA -
+Checks:              2191 / 2191, 100%
+Deleted:                1 (files), 1 (dirs)
+Elapsed time:         4.4s
+
