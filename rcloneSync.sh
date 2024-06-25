@@ -1,8 +1,9 @@
 #!/bin/bash
-
+export DISPLAY=:0
 # Définition des valeurs par défaut
 WATCH_DIR="$HOME/cloud"
 REMOTE_DIR="gdrive:cloud"
+LOCK_FILE="${BASEDIR}/rcloneSync.lock"
 
 BASEDIR=$(dirname "$0")
 # Fichier temporaire pour les logs de rclone
@@ -33,6 +34,8 @@ done
 
 # Fonction de synchronisation et envoi de notifications
 sync() {
+    # Création du fichier de verrouillage
+    touch "$LOCK_FILE"
     echo "Démarrage de la synchronisation avec rclone..."
 
     # Synchronisation avec rclone et redirection des logs vers un fichier temporaire
@@ -60,37 +63,23 @@ sync() {
     if [ -n "$filtered_logs" ]; then
         notify-send "Synchronisation rclone" "$filtered_logs"
     fi
+
+    # Suppression du fichier de verrouillage
+    rm "$LOCK_FILE"
 }
 
-# Fonction pour vérifier si le processus est en cours d'exécution
-is_process_running() {
-    local pid=$1
-    if ps -p "$pid" > /dev/null 2>&1; then
-        return 0
-    else
-        return 1
+# Fonction pour vérifier si le lock existe
+check_lock() {
+    if [ -f "$LOCK_FILE" ]; then
+        echo "Le verrouillage existe. Fin du script."
+        exit 0
     fi
 }
 
-script_name=$(basename "$0")
-
-# Vérifie si le processus est déjà en cours d'exécution
-pids=$(pgrep -f "$script_name")
-
-# Filtrer pour exclure le PID de ce script en cours d'exécution
-current_pid=$$
-pids=$(echo "$pids" | grep -vw "$current_pid")
-
-if [ -n "$pids" ]; then
-    for pid in $pids; do
-        if is_process_running "$pid"; then
-            echo "Le processus $script_name est en cours d'exécution avec PID $pid."
-            echo "$script_name est en cours d'exécution. Merci de patienter..."
-            exit 1
-        fi
-    done
-else
-    echo "Aucun processus $script_name trouvé. Lancement de la synchronisation."
+# Boucle principale
+while true; do
+    check_lock
     sync
-fi
+    sleep 3
+done
 
