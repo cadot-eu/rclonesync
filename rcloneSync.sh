@@ -3,7 +3,7 @@ export DISPLAY=:0
 # Définition des valeurs par défaut
 WATCH_DIR="$HOME/cloud"
 REMOTE_DIR="gdrive:cloud"
-LOCK_FILE="${BASEDIR}/rcloneSync.lock"
+LOCK_FILE="/tmp/rcloneSync.lock"
 
 BASEDIR=$(dirname "$0")
 # Fichier temporaire pour les logs de rclone
@@ -39,24 +39,22 @@ sync() {
     echo "Démarrage de la synchronisation avec rclone..."
 
     # Synchronisation avec rclone et redirection des logs vers un fichier temporaire
-    rclone copy "$WATCH_DIR" "$REMOTE_DIR" --log-level=INFO --stats-one-line --checksum --fast-list --transfers 16 > "$LOG_FILE" 2>&1
-    rclone copy "$REMOTE_DIR" "$WATCH_DIR" --log-level=INFO --stats-one-line --checksum --fast-list --transfers 16 >> "$LOG_FILE" 2>&1
+    #rclone copy "$REMOTE_DIR" "$WATCH_DIR" --log-level=INFO --create-empty-src-dirs --stats-one-line --checksum --fast-list --transfers 16 >> "$LOG_FILE" 2>&1
+    #rclone sync "$WATCH_DIR" "$REMOTE_DIR" --log-level=INFO --delete-during --stats-one-line --checksum --fast-list --transfers 16 > "$LOG_FILE" 2>&1
+    # on vérifie l'absence de ~/.cache/rclone/bisync que bisync 
+    if [ ! -d ~/.cache/rclone/bisync ]; then
+    rclone bisync "$WATCH_DIR" "$REMOTE_DIR" --log-level=INFO --stats-one-line  >> "$LOG_FILE" 2>&1
+    else
+    rclone bisync "$WATCH_DIR" "$REMOTE_DIR" --log-level=INFO --stats-one-line  --checksum --fast-list --transfers 16 > "$LOG_FILE" 2>&1
+    fi
 
     echo "Synchronisation avec rclone terminée."
 
-    # Vérification de la phrase "There was nothing to transfer" dans les logs
-    count=$(grep -o "There was nothing to transfer" "$LOG_FILE" | wc -l)
-
-    if [ "$count" -eq 2 ]; then
-        echo "Rien à faire. Fin du script."
-        exit 0
-    fi
-
     # Filtrer les logs pour supprimer les lignes indésirables
-    filtered_logs=$(grep -v -E '^Transferred:|^Checks:|^Deleted:|^Elapsed time:|^.*There was nothing to transfer$' "$LOG_FILE" | grep -v -E '^.*INFO\s*:\s*$')
+filtered_logs=$(grep -v -E '^Transferred:|^Checks:|^Deleted:|^Elapsed time:|^.*There was nothing to transfer$|^.*INFO\s*:\s*$|0 B / 0 B|-|0 B/s|ETA -|bisync is EXPERIMENTAL|Synching Path1|checking for diffs|Applying changes|Updating listings|Validating listings|Do queued|Path1:|Path2:|Bisync successful' "$LOG_FILE" )
+
 
     # Écho des logs filtrés au terminal
-    echo "Logs filtrés :"
     echo "$filtered_logs"
 
     # Envoi de notification avec les logs filtrés
@@ -65,7 +63,8 @@ sync() {
     fi
 
     # Suppression du fichier de verrouillage
-    rm "$LOCK_FILE"
+    rm -f "$LOCK_FILE"
+    echo "Verrouillage supprimé."
 }
 
 # Fonction pour vérifier si le lock existe
@@ -73,13 +72,11 @@ check_lock() {
     if [ -f "$LOCK_FILE" ]; then
         echo "Le verrouillage existe. Fin du script."
         exit 0
+    else
+        sync
     fi
 }
 
-# Boucle principale
-while true; do
     check_lock
-    sync
-    sleep 3
-done
+   
 
