@@ -9,6 +9,7 @@ BASEDIR=$(dirname "$0")
 # Fichier temporaire pour les logs de rclone
 LOG_FILE="${BASEDIR}/rclone_logs.txt"
 
+xfconf-query -c xfce4-notifyd -p /notification-log --create 
 xfconf-query -c xfce4-notifyd -p /notification-log -s true
 
 # Fonction d'affichage de l'aide
@@ -43,7 +44,7 @@ sync() {
     #rclone sync "$WATCH_DIR" "$REMOTE_DIR" --log-level=INFO --delete-during --stats-one-line --checksum --fast-list --transfers 16 > "$LOG_FILE" 2>&1
     # on vérifie l'absence de ~/.cache/rclone/bisync que bisync 
     if [ ! -d ~/.cache/rclone/bisync ]; then
-    rclone bisync "$WATCH_DIR" "$REMOTE_DIR" --log-level=INFO --stats-one-line  >> "$LOG_FILE" 2>&1
+    rclone bisync "$WATCH_DIR" "$REMOTE_DIR" --log-level=INFO --stats-one-line  --resync >> "$LOG_FILE" 2>&1
     else
     rclone bisync "$WATCH_DIR" "$REMOTE_DIR" --log-level=INFO --stats-one-line  --checksum --fast-list --transfers 16 > "$LOG_FILE" 2>&1
     fi
