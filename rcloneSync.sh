@@ -9,8 +9,9 @@ BASEDIR=$(dirname "$0")
 # Fichier temporaire pour les logs de rclone
 LOG_FILE="${BASEDIR}/rclone_logs.txt"
 
-xfconf-query -c xfce4-notifyd -p /notification-log --create 
-xfconf-query -c xfce4-notifyd -p /notification-log -s true
+# on active les notifications
+xfconf-query -c xfce4-notifyd -p /notification-log --create > /dev/null
+xfconf-query -c xfce4-notifyd -p /notification-log -s true > /dev/null
 
 # Fonction d'affichage de l'aide
 usage() {
@@ -38,16 +39,16 @@ sync() {
     # Création du fichier de verrouillage
     touch "$LOCK_FILE"
     echo "Démarrage de la synchronisation avec rclone..."
-
-    # Synchronisation avec rclone et redirection des logs vers un fichier temporaire
-    #rclone copy "$REMOTE_DIR" "$WATCH_DIR" --log-level=INFO --create-empty-src-dirs --stats-one-line --checksum --fast-list --transfers 16 >> "$LOG_FILE" 2>&1
-    #rclone sync "$WATCH_DIR" "$REMOTE_DIR" --log-level=INFO --delete-during --stats-one-line --checksum --fast-list --transfers 16 > "$LOG_FILE" 2>&1
     # on vérifie l'absence de ~/.cache/rclone/bisync que bisync 
     if [ ! -d ~/.cache/rclone/bisync ]; then
     rclone bisync "$WATCH_DIR" "$REMOTE_DIR" --log-level=INFO --stats-one-line  --resync >> "$LOG_FILE" 2>&1
     else
     rclone bisync "$WATCH_DIR" "$REMOTE_DIR" --log-level=INFO --stats-one-line  --checksum --fast-list --transfers 16 > "$LOG_FILE" 2>&1
     fi
+# on vérifie la présence dans le fichier log de cannot find prior et dans ce cas on relance la commande avec --resync
+if grep -q "cannot find prior" "$LOG_FILE"; then
+    rclone bisync "$WATCH_DIR" "$REMOTE_DIR" --log-level=INFO --stats-one-line  --resync >> "$LOG_FILE" 2>&1
+fi
 
     echo "Synchronisation avec rclone terminée."
 
