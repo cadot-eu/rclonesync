@@ -53,7 +53,10 @@ fi
     echo "Synchronisation avec rclone terminée."
 
     # Filtrer les logs pour supprimer les lignes indésirables
-filtered_logs=$(grep -v -E '^Transferred:|^Checks:|^Deleted:|^Elapsed time:|^.*There was nothing to transfer$|^.*INFO\s*:\s*$|0 B / 0 B|-|0 B/s|ETA -|bisync is EXPERIMENTAL|Synching Path1|checking for diffs|Applying changes|Updating listings|Validating listings|Do queued|Path1:|Path2:|, ETA|No changes found|Bisync successful' "$LOG_FILE" )
+filtered_logs=$(grep -v -E '^Transferred:|^Checks:|^Deleted:|^Elapsed time:|^.*There was nothing to transfer$|^.*INFO\s*:\s*$|0 B / 0 B|-|0 B/s|ETA -|bisync is EXPERIMENTAL|Synching Path1|checking for diffs|Applying changes|Updating listings|Validating listings|Do queued|Path1:|Path2:|, ETA|No changes found|Bisync successful' "$LOG_FILE" | sed 's/^[^I]*INFO  : //')
+
+
+
 
 
     # Écho des logs filtrés au terminal
